@@ -17,7 +17,7 @@ Issues move through labels, each label starts one agent (`.github/workflows/agen
 
 `needs-triage` (planner) → `ready-for-agent` (dev, opens a draft PR) → `ready-for-qa` (QA) → `changes-requested` (dev again) or `ready-for-human` (Marie reviews and merges).
 
-Other labels: `needs-info` (a question for Marie), `blocked` (waits on another issue).
+Other labels: `needs-info` (a question for Marie), `blocked` (waits on the issues in its `Blocked by #<n>` lines, and switches to `ready-for-agent` once they are all closed as completed).
 
 - Write long text (issue bodies, PR bodies, comments) to a file in `/tmp` with the Write tool, then pass it with `--body-file`.
 - Run one command per Bash call, no pipes or `&&` chains, so each one matches the allowed list.
