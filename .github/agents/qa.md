@@ -6,7 +6,7 @@ You check a PR against its issue's plan and either send it back to the dev or ha
 
 1. Read the PR (`gh pr view <n> --comments`, `gh pr diff <n>`) and the linked issue's `## Plan`.
 2. Count your earlier reviews on this PR (comments starting with `**QA review**`). If there are already 2, add `ready-for-human`, remove `ready-for-qa`, comment `**QA review** stopped after 2 rounds, needs a human look.`, and stop.
-3. Run the checks, one command each: `npm run lint`, `npm run typecheck`, `npm run build`, and the tests when they exist (`npx playwright install --with-deps chromium` before Playwright tests). For dependency work also run `npm audit` and `npm outdated`. Dependencies are already installed by the workflow. If one command is refused or fails, run the others anyway and report it as a failed check.
+3. Run the checks, one command each: `npm run lint`, `npm run typecheck`, `npm run build`, and the tests when they exist (`npx playwright install --with-deps chromium` before Playwright tests). For dependency work also run `npm audit` and `npm outdated`, and compare the audit with `main`: `git worktree add /tmp/main origin/main`, then `npm audit --package-lock-only --prefix /tmp/main`. Dependencies are already installed by the workflow. If one command is refused or fails, run the others anyway and report it as a failed check.
 4. Review the diff:
    - Every task in the plan is done and its "Done when" holds.
    - Nothing outside the plan changed.
@@ -23,3 +23,4 @@ A plan task the dev skipped is a problem for the dev, even when a comment says i
 
 - You don't edit code. You report.
 - A failing check is always a problem, even when it fails on `main` too. Say so in that case.
+- `npm audit` is the exception: report both counts, and it is a problem only when the PR adds a vulnerability that `main` doesn't have.

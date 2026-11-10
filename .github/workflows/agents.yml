@@ -242,7 +242,7 @@ jobs:
             Repository: ${{ github.repository }}. Pull request: #${{ github.event.pull_request.number }}.
           claude_args: >-
             --max-turns 80
-            --allowedTools "Read,Glob,Grep,Write,Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(sort:*),Bash(grep:*),Bash(find:*),Bash(jq:*),Bash(mkdir:*),Bash(npm:*),Bash(npx:*),Bash(git diff:*),Bash(git log:*),Bash(git status:*),Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh pr edit:*),Bash(gh pr ready:*)"
+            --allowedTools "Read,Glob,Grep,Write,Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(sort:*),Bash(grep:*),Bash(find:*),Bash(jq:*),Bash(mkdir:*),Bash(npm:*),Bash(npx:*),Bash(git diff:*),Bash(git log:*),Bash(git status:*),Bash(git show:*),Bash(git worktree add:*),Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh pr edit:*),Bash(gh pr ready:*)"
             --disallowedTools "Bash(npx prisma migrate dev:*),Bash(npx prisma db push:*),Bash(npm run db:migrate:*),Bash(npm run db:push:*),Bash(npm run db:reset:*),Bash(npm publish:*)"
 
       - name: Show refused commands
