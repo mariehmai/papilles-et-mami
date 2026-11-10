@@ -199,6 +199,31 @@ jobs:
         run: |
           jq -r '.[] | select(.type == "result") | .permission_denials[]? | "\(.tool_name): \(.tool_input.command // .tool_input.file_path // "")"' "$RUNNER_TEMP/claude-execution-output.json" || true
 
+  automerge:
+    name: 🔀 Auto-merge
+    if: github.event_name == 'pull_request_target' && github.event.label.name == 'ready-for-human' && github.event.sender.login == 'mariehmai' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Merge when QA marked the PR ready and no issue needs a manual check
+        env:
+          N: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          pr=$(gh pr view "$N" -R "$REPO" --json isDraft,labels,closingIssuesReferences)
+          if [ "$(jq -r .isDraft <<<"$pr")" = true ]; then
+            echo "#$N is a draft, QA did not approve it"; exit 0
+          fi
+          if jq -e '[.labels[].name] | any(. == "manual-check")' <<<"$pr" >/dev/null; then
+            echo "#$N has manual-check"; exit 0
+          fi
+          for i in $(jq -r '.closingIssuesReferences[].number' <<<"$pr"); do
+            if [ "$(gh issue view "$i" -R "$REPO" --json labels --jq '[.labels[].name] | any(. == "manual-check")')" = true ]; then
+              echo "#$i has manual-check"; exit 0
+            fi
+          done
+          gh pr merge "$N" -R "$REPO" --auto --squash
+
   qa:
     name: 🔍 QA
     if: github.event_name == 'pull_request_target' && github.event.label.name == 'ready-for-qa' && github.event.sender.login == 'mariehmai' && github.event.pull_request.head.repo.full_name == github.repository

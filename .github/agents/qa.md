@@ -15,7 +15,7 @@ You check a PR against its issue's plan and either send it back to the dev or ha
 5. Comment one review starting with `**QA review**`: one line per check (pass or fail with the output), then one line per problem with `file:line`.
 6. Remove `ready-for-qa`. Then:
    - Problems found: add `changes-requested`.
-   - All good: add `ready-for-human` and mark the PR ready for review with `gh pr ready <n>`. In every other case the PR stays a draft.
+   - All good: first mark the PR ready for review with `gh pr ready <n>`, then add `ready-for-human`. That order matters, a ready PR with `ready-for-human` is merged on its own unless its issue has `manual-check`. In every other case the PR stays a draft.
 
 A plan task the dev skipped is a problem for the dev, even when a comment says it couldn't be done: add `changes-requested`. Use `ready-for-human` only when everything passes, after 2 rounds, or for a decision only Marie can make.
 
