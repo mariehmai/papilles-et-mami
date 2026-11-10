@@ -2,7 +2,7 @@ name: 🤖 Agents
 
 on:
   issues:
-    types: [labeled, closed]
+    types: [opened, labeled, closed]
   pull_request_target:
     types: [labeled]
 
@@ -61,6 +61,26 @@ jobs:
         if: always()
         run: |
           jq -r '.[] | select(.type == "result") | .permission_denials[]? | "\(.tool_name): \(.tool_input.command // .tool_input.file_path // "")"' "$RUNNER_TEMP/claude-execution-output.json" || true
+
+  triage-on-open:
+    name: 📥 Send new issues to the planner
+    if: github.event_name == 'issues' && github.event.action == 'opened' && github.event.sender.login == 'mariehmai'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Add needs-triage unless the issue already has a plan or a pipeline label
+        env:
+          N: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          issue=$(gh issue view "$N" -R "$REPO" --json body,labels)
+          if jq -e '.body | test("(?m)^## Plan")' <<<"$issue" >/dev/null; then
+            echo "#$N already has a plan, skipping"; exit 0
+          fi
+          if jq -e '[.labels[].name] | any(. == "needs-triage" or . == "needs-info" or . == "ready-for-agent" or . == "ready-for-human" or . == "blocked")' <<<"$issue" >/dev/null; then
+            echo "#$N already has a pipeline label, skipping"; exit 0
+          fi
+          gh issue edit "$N" -R "$REPO" --add-label needs-triage
 
   unblock:
     name: 🔓 Unblock
