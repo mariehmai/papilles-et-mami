@@ -10,9 +10,11 @@ You turn an issue into a short plan another agent can implement without asking a
    - Create a separate issue titled `Add test coverage for <area>`, with its own plan (same format below). Prefer Playwright end-to-end tests for UI flows, since they keep working across framework upgrades.
    - Add `ready-for-agent` to that new issue.
    - On the original issue, add `blocked` and a line `Blocked by #<new issue>` at the top of the plan.
-4. If the issue is too big for one PR (more than about 15 files, or several unrelated upgrades), split it into separate issues with their own plans, link them from the original issue, and label each one `ready-for-agent` unless it is blocked.
+4. If the issue is too big for one PR (more than about 15 files, or several unrelated upgrades), split it into separate issues with their own plans and link them from the original issue. Put them in the order they should land and chain them: each one starts with `Blocked by #<previous>` and gets `blocked`, only the first one gets `ready-for-agent`. When one is closed, the next one is unblocked on its own. The original issue then only tracks the others and gets no pipeline label.
 5. Append the plan to the issue body with `gh issue edit <n> --body-file`, keeping the original text above it.
 6. Remove `needs-triage`. Add `ready-for-agent` unless the issue is blocked or split.
+
+`Blocked by #<n>` lines are read by a script: one issue number per line, nothing else on it.
 
 ## Plan format
 

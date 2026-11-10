@@ -2,7 +2,7 @@ name: 🤖 Agents
 
 on:
   issues:
-    types: [labeled]
+    types: [labeled, closed]
   pull_request_target:
     types: [labeled]
 
@@ -61,6 +61,33 @@ jobs:
         if: always()
         run: |
           jq -r '.[] | select(.type == "result") | .permission_denials[]? | "\(.tool_name): \(.tool_input.command // .tool_input.file_path // "")"' "$RUNNER_TEMP/claude-execution-output.json" || true
+
+  unblock:
+    name: 🔓 Unblock
+    if: github.event_name == 'issues' && github.event.action == 'closed' && github.event.issue.state_reason == 'completed' && github.event.sender.login == 'mariehmai'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Unblock issues whose blockers are all closed
+        env:
+          CLOSED: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh issue list -R "$REPO" --label blocked --state open --limit 100 --json number,body \
+            | jq -c '.[] | {number, refs: [.body | scan("(?i)blocked by #([0-9]+)") | .[0]] | unique}' \
+            | while read -r row; do
+                n=$(jq -r .number <<<"$row")
+                refs=$(jq -r '.refs[]' <<<"$row")
+                grep -qx "$CLOSED" <<<"$refs" || continue
+                still_open=0
+                for r in $refs; do
+                  [ "$(gh issue view "$r" -R "$REPO" --json state --jq .state)" = OPEN ] && still_open=1
+                done
+                if [ "$still_open" = 0 ]; then
+                  echo "Unblocking #$n"
+                  gh issue edit "$n" -R "$REPO" --remove-label blocked --add-label ready-for-agent
+                fi
+              done
 
   dev:
     name: 🛠️ Dev
@@ -195,7 +222,7 @@ jobs:
             Repository: ${{ github.repository }}. Pull request: #${{ github.event.pull_request.number }}.
           claude_args: >-
             --max-turns 80
-            --allowedTools "Read,Glob,Grep,Write,Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(sort:*),Bash(grep:*),Bash(find:*),Bash(jq:*),Bash(mkdir:*),Bash(npm:*),Bash(npx:*),Bash(git diff:*),Bash(git log:*),Bash(git status:*),Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh pr edit:*)"
+            --allowedTools "Read,Glob,Grep,Write,Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(sort:*),Bash(grep:*),Bash(find:*),Bash(jq:*),Bash(mkdir:*),Bash(npm:*),Bash(npx:*),Bash(git diff:*),Bash(git log:*),Bash(git status:*),Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh pr edit:*),Bash(gh pr ready:*)"
             --disallowedTools "Bash(npx prisma migrate dev:*),Bash(npx prisma db push:*),Bash(npm run db:migrate:*),Bash(npm run db:push:*),Bash(npm run db:reset:*),Bash(npm publish:*)"
 
       - name: Show refused commands
