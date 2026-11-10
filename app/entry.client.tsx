@@ -1,5 +1,5 @@
 import { RemixBrowser } from "@remix-run/react";
-import i18next, { use, init } from "i18next";
+import i18next from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import Backend from "i18next-http-backend";
 import { startTransition, StrictMode } from "react";
@@ -10,11 +10,11 @@ import { getInitialNamespaces } from "remix-i18next/client";
 import i18n from "./i18n";
 
 async function hydrate() {
-  use(initReactI18next); // Tell i18next to use the react-i18next plugin
-  use(LanguageDetector); // Setup a client-side language detector
-  use(Backend); // Setup your backend
+  i18next.use(initReactI18next); // Tell i18next to use the react-i18next plugin
+  i18next.use(LanguageDetector); // Setup a client-side language detector
+  i18next.use(Backend); // Setup your backend
 
-  await init({
+  await i18next.init({
     ...i18n, // spread the configuration
     // This function detects the namespaces your routes rendered while SSR use
     ns: getInitialNamespaces(),
