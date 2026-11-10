@@ -19,6 +19,10 @@ Issues move through labels, each label starts one agent (`.github/workflows/agen
 
 Other labels: `needs-info` (a question for Marie), `blocked` (waits on another issue).
 
+- Write long text (issue bodies, PR bodies, comments) to a file in `/tmp` with the Write tool, then pass it with `--body-file`.
+- Run one command per Bash call, no pipes or `&&` chains, so each one matches the allowed list.
+- If a command is refused, comment on the issue or PR which command it was, add `ready-for-human`, and stop.
+
 ## Writing rules
 
 - Commit messages: one imperative line, no body, no trailers.
