@@ -13,7 +13,7 @@ npm run build
 
 ## Agents
 
-Issues move through labels, each label starts one agent (`.github/workflows/agents.yml`, briefs in `.github/agents/`):
+Issues Marie opens get `needs-triage` on their own, unless they already have a plan or a pipeline label. Issues move through labels, each label starts one agent (`.github/workflows/agents.yml`, briefs in `.github/agents/`):
 
 `needs-triage` (planner) → `ready-for-agent` (dev, opens a draft PR) → `ready-for-qa` (QA) → `changes-requested` (dev again) or `ready-for-human` (Marie reviews and merges).
 
