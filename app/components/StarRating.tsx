@@ -1,4 +1,4 @@
-import clsx from "clsx";
+import { clsx } from "clsx";
 import { useState, useEffect } from "react";
 import type { FunctionComponent } from "react";
 

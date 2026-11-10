@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "@remix-run/react";
-import clsx from "clsx";
+import { clsx } from "clsx";
 import type { FunctionComponent } from "react";
 
 export const Link: FunctionComponent<{
