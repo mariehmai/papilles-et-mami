@@ -55,7 +55,12 @@ jobs:
             Repository: ${{ github.repository }}. Issue: #${{ github.event.issue.number }}.
           claude_args: >-
             --max-turns 30
-            --allowedTools "Read,Glob,Grep,Bash(gh issue view:*),Bash(gh issue list:*),Bash(gh issue create:*),Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(npm outdated:*),Bash(npm audit:*),Bash(npm ls:*),Bash(npm view:*)"
+            --allowedTools "Read,Glob,Grep,Write,Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(sort:*),Bash(grep:*),Bash(find:*),Bash(jq:*),Bash(gh issue view:*),Bash(gh issue list:*),Bash(gh issue create:*),Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(npm outdated:*),Bash(npm audit:*),Bash(npm ls:*),Bash(npm view:*)"
+
+      - name: Show refused commands
+        if: always()
+        run: |
+          jq -r '.[] | select(.type == "result") | .permission_denials[]? | "\(.tool_name): \(.tool_input.command // .tool_input.file_path // "")"' "$RUNNER_TEMP/claude-execution-output.json" || true
 
   dev:
     name: 🛠️ Dev
@@ -88,8 +93,13 @@ jobs:
             Repository: ${{ github.repository }}. Issue: #${{ github.event.issue.number }}.
           claude_args: >-
             --max-turns 80
-            --allowedTools "Read,Glob,Grep,Edit,Write,Bash(git:*),Bash(npm:*),Bash(npx:*),Bash(gh issue view:*),Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(gh pr create:*),Bash(gh pr edit:*),Bash(gh pr view:*)"
+            --allowedTools "Read,Glob,Grep,Edit,Write,Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(sort:*),Bash(grep:*),Bash(find:*),Bash(jq:*),Bash(git:*),Bash(npm:*),Bash(npx:*),Bash(gh issue view:*),Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(gh pr create:*),Bash(gh pr edit:*),Bash(gh pr view:*)"
             --disallowedTools "Bash(gh pr merge:*),Bash(git push origin main:*),Bash(git push --force:*),Bash(git push -f:*),Bash(npx prisma migrate dev:*),Bash(npx prisma db push:*),Bash(npm run db:migrate:*),Bash(npm run db:push:*),Bash(npm run db:reset:*)"
+
+      - name: Show refused commands
+        if: always()
+        run: |
+          jq -r '.[] | select(.type == "result") | .permission_denials[]? | "\(.tool_name): \(.tool_input.command // .tool_input.file_path // "")"' "$RUNNER_TEMP/claude-execution-output.json" || true
 
   dev-fix:
     name: 🛠️ Dev (QA fixes)
@@ -123,8 +133,13 @@ jobs:
             Repository: ${{ github.repository }}. Pull request: #${{ github.event.pull_request.number }}, branch ${{ github.event.pull_request.head.ref }}.
           claude_args: >-
             --max-turns 60
-            --allowedTools "Read,Glob,Grep,Edit,Write,Bash(git:*),Bash(npm:*),Bash(npx:*),Bash(gh issue view:*),Bash(gh pr edit:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
+            --allowedTools "Read,Glob,Grep,Edit,Write,Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(sort:*),Bash(grep:*),Bash(find:*),Bash(jq:*),Bash(git:*),Bash(npm:*),Bash(npx:*),Bash(gh issue view:*),Bash(gh pr edit:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
             --disallowedTools "Bash(gh pr merge:*),Bash(git push origin main:*),Bash(git push --force:*),Bash(git push -f:*),Bash(npx prisma migrate dev:*),Bash(npx prisma db push:*),Bash(npm run db:migrate:*),Bash(npm run db:push:*),Bash(npm run db:reset:*)"
+
+      - name: Show refused commands
+        if: always()
+        run: |
+          jq -r '.[] | select(.type == "result") | .permission_denials[]? | "\(.tool_name): \(.tool_input.command // .tool_input.file_path // "")"' "$RUNNER_TEMP/claude-execution-output.json" || true
 
   qa:
     name: 🔍 QA
@@ -158,4 +173,9 @@ jobs:
             Repository: ${{ github.repository }}. Pull request: #${{ github.event.pull_request.number }}.
           claude_args: >-
             --max-turns 40
-            --allowedTools "Read,Glob,Grep,Bash(npm run lint:*),Bash(npm run typecheck:*),Bash(npm run build:*),Bash(npm test:*),Bash(npm run test:*),Bash(npm run db:seed:*),Bash(npx prisma migrate deploy:*),Bash(npx prisma generate:*),Bash(npx playwright:*),Bash(npm audit:*),Bash(npm ls:*),Bash(npm outdated:*),Bash(git diff:*),Bash(git log:*),Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh pr edit:*)"
+            --allowedTools "Read,Glob,Grep,Write,Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(sort:*),Bash(grep:*),Bash(find:*),Bash(jq:*),Bash(npm run lint:*),Bash(npm run typecheck:*),Bash(npm run build:*),Bash(npm test:*),Bash(npm run test:*),Bash(npm run db:seed:*),Bash(npx prisma migrate deploy:*),Bash(npx prisma generate:*),Bash(npx playwright:*),Bash(npm audit:*),Bash(npm ls:*),Bash(npm outdated:*),Bash(git diff:*),Bash(git log:*),Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh pr edit:*)"
+
+      - name: Show refused commands
+        if: always()
+        run: |
+          jq -r '.[] | select(.type == "result") | .permission_denials[]? | "\(.tool_name): \(.tool_input.command // .tool_input.file_path // "")"' "$RUNNER_TEMP/claude-execution-output.json" || true
