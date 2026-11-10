@@ -1,0 +1,161 @@
+name: 🤖 Agents
+
+on:
+  issues:
+    types: [labeled]
+  pull_request:
+    types: [labeled]
+
+concurrency:
+  group: agents-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+
+env:
+  GH_TOKEN: ${{ secrets.AGENT_GH_TOKEN }}
+  DATABASE_URL: file:./ci.db
+  SESSION_SECRET: ci-only-session-secret
+  GOOGLE_CLIENT_ID: ci-only
+  GOOGLE_CLIENT_SECRET: ci-only
+  APP_URL: http://localhost:3000
+
+jobs:
+  plan:
+    name: 📝 Planner
+    if: github.event_name == 'issues' && github.event.label.name == 'needs-triage' && github.event.sender.login == 'mariehmai'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.AGENT_GH_TOKEN }}
+
+      - uses: actions/setup-node@v7
+        with:
+          cache: npm
+          cache-dependency-path: ./package.json
+          node-version: 18
+
+      - run: npm install
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.AGENT_GH_TOKEN }}
+          bot_id: "36398221"
+          bot_name: mariehmai
+          settings: '{"attribution":{"commit":"","pr":""}}'
+          prompt: |
+            You are the planner. Follow .github/agents/planner.md.
+            Repository: ${{ github.repository }}. Issue: #${{ github.event.issue.number }}.
+          claude_args: >-
+            --max-turns 30
+            --allowedTools "Read,Glob,Grep,Bash(gh issue view:*),Bash(gh issue list:*),Bash(gh issue create:*),Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(npm outdated:*),Bash(npm audit:*),Bash(npm ls:*),Bash(npm view:*)"
+
+  dev:
+    name: 🛠️ Dev
+    if: github.event_name == 'issues' && github.event.label.name == 'ready-for-agent' && github.event.sender.login == 'mariehmai'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.AGENT_GH_TOKEN }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          cache: npm
+          cache-dependency-path: ./package.json
+          node-version: 18
+
+      - run: npm install
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.AGENT_GH_TOKEN }}
+          bot_id: "36398221"
+          bot_name: mariehmai
+          settings: '{"attribution":{"commit":"","pr":""}}'
+          prompt: |
+            You are the dev. Follow .github/agents/dev.md.
+            Repository: ${{ github.repository }}. Issue: #${{ github.event.issue.number }}.
+          claude_args: >-
+            --max-turns 80
+            --allowedTools "Read,Glob,Grep,Edit,Write,Bash(git:*),Bash(npm:*),Bash(npx:*),Bash(gh issue view:*),Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(gh pr create:*),Bash(gh pr edit:*),Bash(gh pr view:*)"
+            --disallowedTools "Bash(gh pr merge:*),Bash(git push origin main:*),Bash(git push --force:*),Bash(git push -f:*),Bash(npx prisma migrate dev:*),Bash(npx prisma db push:*),Bash(npm run db:migrate:*),Bash(npm run db:push:*),Bash(npm run db:reset:*)"
+
+  dev-fix:
+    name: 🛠️ Dev (QA fixes)
+    if: github.event_name == 'pull_request' && github.event.label.name == 'changes-requested' && github.event.sender.login == 'mariehmai'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.AGENT_GH_TOKEN }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          cache: npm
+          cache-dependency-path: ./package.json
+          node-version: 18
+
+      - run: npm install
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.AGENT_GH_TOKEN }}
+          bot_id: "36398221"
+          bot_name: mariehmai
+          settings: '{"attribution":{"commit":"","pr":""}}'
+          prompt: |
+            You are the dev, fixing QA feedback. Follow .github/agents/dev.md, section "Fixing QA feedback".
+            Repository: ${{ github.repository }}. Pull request: #${{ github.event.pull_request.number }}, branch ${{ github.event.pull_request.head.ref }}.
+          claude_args: >-
+            --max-turns 60
+            --allowedTools "Read,Glob,Grep,Edit,Write,Bash(git:*),Bash(npm:*),Bash(npx:*),Bash(gh issue view:*),Bash(gh pr edit:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
+            --disallowedTools "Bash(gh pr merge:*),Bash(git push origin main:*),Bash(git push --force:*),Bash(git push -f:*),Bash(npx prisma migrate dev:*),Bash(npx prisma db push:*),Bash(npm run db:migrate:*),Bash(npm run db:push:*),Bash(npm run db:reset:*)"
+
+  qa:
+    name: 🔍 QA
+    if: github.event_name == 'pull_request' && github.event.label.name == 'ready-for-qa' && github.event.sender.login == 'mariehmai'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.AGENT_GH_TOKEN }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          cache: npm
+          cache-dependency-path: ./package.json
+          node-version: 18
+
+      - run: npm install
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.AGENT_GH_TOKEN }}
+          bot_id: "36398221"
+          bot_name: mariehmai
+          settings: '{"attribution":{"commit":"","pr":""}}'
+          prompt: |
+            You are QA. Follow .github/agents/qa.md.
+            Repository: ${{ github.repository }}. Pull request: #${{ github.event.pull_request.number }}.
+          claude_args: >-
+            --max-turns 40
+            --allowedTools "Read,Glob,Grep,Bash(npm run lint:*),Bash(npm run typecheck:*),Bash(npm run build:*),Bash(npm test:*),Bash(npm run test:*),Bash(npm run db:seed:*),Bash(npx prisma migrate deploy:*),Bash(npx prisma generate:*),Bash(npx playwright:*),Bash(npm audit:*),Bash(npm ls:*),Bash(npm outdated:*),Bash(git diff:*),Bash(git log:*),Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh pr edit:*)"
