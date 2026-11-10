@@ -25,7 +25,8 @@ Other labels: `needs-info` (a question for Marie), `blocked` (waits on another i
 
 ## Writing rules
 
-- Commit messages: one imperative line, no body, no trailers.
+- Commit messages and PR titles: Conventional Commits with an emoji after the colon, one line, lowercase imperative, no body, no trailers. `feat: ✨ add vegan filter`.
+  - `feat: ✨` · `fix: 🐛` · `refactor: ♻️` · `chore: 🔧` · `test: ✅` · `ci: ⚙️` · `docs: 📝` · `chore(deps): ⬆️`
 - Never mention an AI or an assistant in commits, PRs, issues or comments.
 - Never use em dashes. Use a comma, colon or hyphen.
 - Code comments only for what the code can't show, as one plain sentence.

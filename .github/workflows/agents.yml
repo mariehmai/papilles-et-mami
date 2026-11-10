@@ -54,7 +54,7 @@ jobs:
             You are the planner. Follow .github/agents/planner.md.
             Repository: ${{ github.repository }}. Issue: #${{ github.event.issue.number }}.
           claude_args: >-
-            --max-turns 30
+            --max-turns 60
             --allowedTools "Read,Glob,Grep,Write,Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(sort:*),Bash(grep:*),Bash(find:*),Bash(jq:*),Bash(gh issue view:*),Bash(gh issue list:*),Bash(gh issue create:*),Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(npm outdated:*),Bash(npm audit:*),Bash(npm ls:*),Bash(npm view:*)"
 
       - name: Show refused commands
@@ -92,7 +92,7 @@ jobs:
             You are the dev. Follow .github/agents/dev.md.
             Repository: ${{ github.repository }}. Issue: #${{ github.event.issue.number }}.
           claude_args: >-
-            --max-turns 80
+            --max-turns 150
             --allowedTools "Read,Glob,Grep,Edit,Write,Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(sort:*),Bash(grep:*),Bash(find:*),Bash(jq:*),Bash(git:*),Bash(npm:*),Bash(npx:*),Bash(gh issue view:*),Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(gh pr create:*),Bash(gh pr edit:*),Bash(gh pr view:*)"
             --disallowedTools "Bash(gh pr merge:*),Bash(git push origin main:*),Bash(git push --force:*),Bash(git push -f:*),Bash(npx prisma migrate dev:*),Bash(npx prisma db push:*),Bash(npm run db:migrate:*),Bash(npm run db:push:*),Bash(npm run db:reset:*)"
 
@@ -132,7 +132,7 @@ jobs:
             You are the dev, fixing QA feedback. Follow .github/agents/dev.md, section "Fixing QA feedback".
             Repository: ${{ github.repository }}. Pull request: #${{ github.event.pull_request.number }}, branch ${{ github.event.pull_request.head.ref }}.
           claude_args: >-
-            --max-turns 60
+            --max-turns 100
             --allowedTools "Read,Glob,Grep,Edit,Write,Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(sort:*),Bash(grep:*),Bash(find:*),Bash(jq:*),Bash(git:*),Bash(npm:*),Bash(npx:*),Bash(gh issue view:*),Bash(gh pr edit:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
             --disallowedTools "Bash(gh pr merge:*),Bash(git push origin main:*),Bash(git push --force:*),Bash(git push -f:*),Bash(npx prisma migrate dev:*),Bash(npx prisma db push:*),Bash(npm run db:migrate:*),Bash(npm run db:push:*),Bash(npm run db:reset:*)"
 
@@ -172,7 +172,7 @@ jobs:
             You are QA. Follow .github/agents/qa.md.
             Repository: ${{ github.repository }}. Pull request: #${{ github.event.pull_request.number }}.
           claude_args: >-
-            --max-turns 40
+            --max-turns 80
             --allowedTools "Read,Glob,Grep,Write,Bash(cat:*),Bash(ls:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(sort:*),Bash(grep:*),Bash(find:*),Bash(jq:*),Bash(npm run lint:*),Bash(npm run typecheck:*),Bash(npm run build:*),Bash(npm test:*),Bash(npm run test:*),Bash(npm run db:seed:*),Bash(npx prisma migrate deploy:*),Bash(npx prisma generate:*),Bash(npx playwright:*),Bash(npm audit:*),Bash(npm ls:*),Bash(npm outdated:*),Bash(git diff:*),Bash(git log:*),Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr checks:*),Bash(gh pr comment:*),Bash(gh pr edit:*)"
 
       - name: Show refused commands
