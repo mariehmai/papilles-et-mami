@@ -1,7 +1,7 @@
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useNavigate, useSearchParams } from "@remix-run/react";
-import clsx from "clsx";
+import { clsx } from "clsx";
 import { TFunction } from "i18next";
 import { FunctionComponent, useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";

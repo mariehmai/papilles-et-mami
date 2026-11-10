@@ -12,7 +12,7 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import { RiEditLine, RiSendPlaneLine } from "@remixicon/react";
-import clsx from "clsx";
+import { clsx } from "clsx";
 import { FunctionComponent, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
