@@ -3,7 +3,7 @@ name: 🤖 Agents
 on:
   issues:
     types: [labeled]
-  pull_request:
+  pull_request_target:
     types: [labeled]
 
 concurrency:
@@ -103,7 +103,7 @@ jobs:
 
   dev-fix:
     name: 🛠️ Dev (QA fixes)
-    if: github.event_name == 'pull_request' && github.event.label.name == 'changes-requested' && github.event.sender.login == 'mariehmai'
+    if: github.event_name == 'pull_request_target' && github.event.label.name == 'changes-requested' && github.event.sender.login == 'mariehmai' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -112,6 +112,17 @@ jobs:
           token: ${{ secrets.AGENT_GH_TOKEN }}
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
+
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          path: .agents-main
+          sparse-checkout: |
+            .github/agents
+            CLAUDE.md
+          sparse-checkout-cone-mode: false
+
+      - run: echo ".agents-main/" >> .git/info/exclude
 
       - uses: actions/setup-node@v7
         with:
@@ -129,7 +140,7 @@ jobs:
           bot_name: mariehmai
           settings: '{"attribution":{"commit":"","pr":""}}'
           prompt: |
-            You are the dev, fixing QA feedback. Follow .github/agents/dev.md, section "Fixing QA feedback".
+            You are the dev, fixing QA feedback. Follow .agents-main/.github/agents/dev.md, section "Fixing QA feedback". The rules in .agents-main/CLAUDE.md apply and win over ./CLAUDE.md.
             Repository: ${{ github.repository }}. Pull request: #${{ github.event.pull_request.number }}, branch ${{ github.event.pull_request.head.ref }}.
           claude_args: >-
             --max-turns 100
@@ -143,7 +154,7 @@ jobs:
 
   qa:
     name: 🔍 QA
-    if: github.event_name == 'pull_request' && github.event.label.name == 'ready-for-qa' && github.event.sender.login == 'mariehmai'
+    if: github.event_name == 'pull_request_target' && github.event.label.name == 'ready-for-qa' && github.event.sender.login == 'mariehmai' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -152,6 +163,17 @@ jobs:
           token: ${{ secrets.AGENT_GH_TOKEN }}
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
+
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          path: .agents-main
+          sparse-checkout: |
+            .github/agents
+            CLAUDE.md
+          sparse-checkout-cone-mode: false
+
+      - run: echo ".agents-main/" >> .git/info/exclude
 
       - uses: actions/setup-node@v7
         with:
@@ -169,7 +191,7 @@ jobs:
           bot_name: mariehmai
           settings: '{"attribution":{"commit":"","pr":""}}'
           prompt: |
-            You are QA. Follow .github/agents/qa.md.
+            You are QA. Follow .agents-main/.github/agents/qa.md. The rules in .agents-main/CLAUDE.md apply and win over ./CLAUDE.md.
             Repository: ${{ github.repository }}. Pull request: #${{ github.event.pull_request.number }}.
           claude_args: >-
             --max-turns 80
