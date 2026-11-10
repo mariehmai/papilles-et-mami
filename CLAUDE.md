@@ -21,7 +21,7 @@ Other labels: `needs-info` (a question for Marie), `blocked` (waits on another i
 
 - Write long text (issue bodies, PR bodies, comments) to a file in `/tmp` with the Write tool, then pass it with `--body-file`.
 - Run one command per Bash call, no pipes or `&&` chains, so each one matches the allowed list.
-- If a command is refused, comment on the issue or PR which command it was, add `ready-for-human`, and stop.
+- If a command is refused, keep going with the rest of the task and list the refused command in your final comment. Add `ready-for-human` only when the refusal blocks the task itself.
 
 ## Writing rules
 
